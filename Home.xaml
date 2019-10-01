@@ -1,12 +1,18 @@
-﻿<Window x:Class="CorretorEAN.Home"
+﻿<Window
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:CorretorEAN"
+        xmlns:scroll="clr-namespace:CorretorEAN.Controls"
+        xmlns:local="clr-namespace:CorretorEAN" x:Class="CorretorEAN.Home"
         mc:Ignorable="d"
         Title="Home" Height="500" Width="800" WindowStyle="ToolWindow" >
     <Grid>
+        <Grid.Resources>
+            <Style TargetType="{x:Type ScrollViewer}">
+                <Setter Property="scroll:ScrollSynchronizer.ScrollGroup" Value="Group0"/>
+            </Style>
+        </Grid.Resources>
         <Grid.Background>
             <ImageBrush ImageSource="bggreen.jpg"/>
         </Grid.Background>
@@ -15,11 +21,11 @@
             <ColumnDefinition Width="48"/>
             <ColumnDefinition Width="372"/>
         </Grid.ColumnDefinitions>
-        <ListView x:Name="lvOrigem" HorizontalAlignment="Left" Height="365.977" Margin="10,44.023,0,0" VerticalAlignment="Top" Width="354.65">
+        <ListView x:Name="lvOrigem" HorizontalAlignment="Left" Height="365.977" Margin="10,44.023,0,0" VerticalAlignment="Top" Width="354.65" scroll:ScrollSynchronizer.ScrollGroup="V1">
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="CODIGO" DisplayMemberBinding="{Binding Codigo}" Width="Auto"/>
-                    <GridViewColumn Header="Ean" DisplayMemberBinding="{Binding Ean}" Width="Auto"/>
+                    <GridViewColumn Header="EAN" DisplayMemberBinding="{Binding Ean}" Width="Auto"/>
                     <GridViewColumn Header="DESCRIÇÃO" DisplayMemberBinding="{Binding Descricao}" Width="Auto"/>
                     <GridViewColumn Header="DESCR REDUZ" DisplayMemberBinding="{Binding Reduzida}" Width="Auto"/>
                     <GridViewColumn Header="SEÇÃO" DisplayMemberBinding="{Binding Secao}" Width="Auto"/>
@@ -30,18 +36,11 @@
                 </GridView>
             </ListView.View>
         </ListView>
-        <ListView Grid.Column="2" HorizontalAlignment="Left" Height="0" Margin="0.643,26.517,0,0" VerticalAlignment="Top" Width="10.357">
-            <ListView.View>
-                <GridView>
-                    <GridViewColumn/>
-                </GridView>
-            </ListView.View>
-        </ListView>
-        <ListView x:Name="lvDestino" HorizontalAlignment="Left" Height="365.977" Margin="7.35,44.023,0,0" VerticalAlignment="Top" Width="354.65" Grid.Column="2">
+        <ListView x:Name="lvDestino" HorizontalAlignment="Left" Height="365.977" Margin="7.35,44.023,0,0" VerticalAlignment="Top" Width="354.65" Grid.Column="2" scroll:ScrollSynchronizer.ScrollGroup="V1">
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="CODIGO" DisplayMemberBinding="{Binding Codigo}" Width="Auto"/>
-                    <GridViewColumn Header="Ean" DisplayMemberBinding="{Binding Ean}" Width="Auto"/>
+                    <GridViewColumn Header="EAN" DisplayMemberBinding="{Binding Ean}" Width="Auto"/>
                     <GridViewColumn Header="DESCRIÇÃO" DisplayMemberBinding="{Binding Descricao}" Width="Auto"/>
                     <GridViewColumn Header="DESCR REDUZ" DisplayMemberBinding="{Binding Reduzida}" Width="Auto"/>
                     <GridViewColumn Header="SEÇÃO" DisplayMemberBinding="{Binding Secao}" Width="Auto"/>
