@@ -3,16 +3,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:scroll="clr-namespace:CorretorEAN.Controls"
         xmlns:local="clr-namespace:CorretorEAN" x:Class="CorretorEAN.Home"
         mc:Ignorable="d"
-        Title="Home" Height="500" Width="800" WindowStyle="ToolWindow" >
+        Title="Home" Height="500" Width="800" WindowStyle="ToolWindow" ShowInTaskbar="True" >
     <Grid>
-        <Grid.Resources>
-            <Style TargetType="{x:Type ScrollViewer}">
-                <Setter Property="scroll:ScrollSynchronizer.ScrollGroup" Value="Group0"/>
-            </Style>
-        </Grid.Resources>
         <Grid.Background>
             <ImageBrush ImageSource="bggreen.jpg"/>
         </Grid.Background>
@@ -21,7 +15,7 @@
             <ColumnDefinition Width="48"/>
             <ColumnDefinition Width="372"/>
         </Grid.ColumnDefinitions>
-        <ListView x:Name="lvOrigem" HorizontalAlignment="Left" Height="365.977" Margin="10,44.023,0,0" VerticalAlignment="Top" Width="354.65" scroll:ScrollSynchronizer.ScrollGroup="V1">
+        <ListView x:Name="lvOrigem" HorizontalAlignment="Left" Height="365.977" Margin="10,44.023,0,0" VerticalAlignment="Top" Width="354.65" ScrollViewer.ScrollChanged="lbx1_ScrollChanged">
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="CODIGO" DisplayMemberBinding="{Binding Codigo}" Width="Auto"/>
@@ -36,7 +30,7 @@
                 </GridView>
             </ListView.View>
         </ListView>
-        <ListView x:Name="lvDestino" HorizontalAlignment="Left" Height="365.977" Margin="7.35,44.023,0,0" VerticalAlignment="Top" Width="354.65" Grid.Column="2" scroll:ScrollSynchronizer.ScrollGroup="V1">
+        <ListView x:Name="lvDestino" HorizontalAlignment="Left" Height="365.977" Margin="7.35,44.023,0,0" VerticalAlignment="Top" Width="354.65" Grid.Column="2" ScrollViewer.ScrollChanged="lbx1_ScrollChanged">
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="CODIGO" DisplayMemberBinding="{Binding Codigo}" Width="Auto"/>

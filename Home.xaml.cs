@@ -30,7 +30,32 @@ namespace CorretorEAN
         private void CarregaLV()
         {
             lvOrigem.ItemsSource = ConexaoFirebird.GetListProdutosSysPDV(1);
-            lvDestino.ItemsSource = ConexaoFirebird.GetListProdutosSysPDV(0);
+            lvDestino.ItemsSource = ConexaoFirebird.GetListProdutosSysPDV(1);
+        }
+
+        public Visual GetDescendantByType(Visual element, Type type)
+        {
+            if (element == null) return null;
+            if (element.GetType() == type) return element;
+            Visual foundElement = null;
+            if (element is FrameworkElement)
+            {
+                (element as FrameworkElement).ApplyTemplate();
+            }
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(element); i++)
+            {
+                Visual visual = VisualTreeHelper.GetChild(element, i) as Visual;
+                foundElement = GetDescendantByType(visual, type);
+                if (foundElement != null)
+                    break;
+            }
+            return foundElement;
+        }
+        private void lbx1_ScrollChanged(object sender, ScrollChangedEventArgs e)
+        {
+            ScrollViewer _listboxScrollViewer1 = GetDescendantByType(lvOrigem, typeof(ScrollViewer)) as ScrollViewer;
+            ScrollViewer _listboxScrollViewer2 = GetDescendantByType(lvDestino, typeof(ScrollViewer)) as ScrollViewer;
+            _listboxScrollViewer2.ScrollToVerticalOffset(_listboxScrollViewer1.VerticalOffset);
         }
 
         private void BtTransferir_Click(object sender, RoutedEventArgs e)

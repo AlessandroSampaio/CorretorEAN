@@ -30,7 +30,7 @@ namespace CorretorEAN
                     "P.PROCEST as CEST from PRODUTO P left outer join PRODUTOAUX PA on PA.PROCOD=P.PROCOD " +
                     "left outer join SECAO S on S.SECCOD=P.SECCOD "+
                     "left outer join GRUPO G on G.SECCOD = P.SECCOD and G.GRPCOD = P.GRPCOD "+
-                    "left outer join SUBGRUPO SG on SG.SECCOD = P.SECCOD and SG.GRPCOD = P.GRPCOD AND SG.SGRCOD = P.SGRCOD order by prodes", connectionSysPDV);
+                    "left outer join SUBGRUPO SG on SG.SECCOD = P.SECCOD and SG.GRPCOD = P.GRPCOD AND SG.SGRCOD = P.SGRCOD order by prodes", connection);
                 using (FbDataAdapter fbDataAdapter = new FbDataAdapter(fbCommand))
                 {
                     using (DataTable dataTable = new DataTable())
