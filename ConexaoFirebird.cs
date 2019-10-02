@@ -19,7 +19,7 @@ namespace CorretorEAN
             {
                 connectionSysPDV.Open();
                 FbCommand fbCommand = new FbCommand(@"select P.PROCOD as CODIGO, PA.PROCODAUX as EAN, P.PRODES as DESCRICAO, P.PRODESRDZ as REDUZIDA, " +
-                    "S.SECDES as SECAO, P.SECCOD as SECCOD, G.GRPDES as GRUPO, P.GRPCOD as GRPCOD, SG.SGRDES as SUBGRUPO, P.SGRCOD as SUBGRUPO, P.PRONCM as NCM, " +
+                    "S.SECDES as SECAO, P.SECCOD as SECCOD, G.GRPDES as GRUPO, P.GRPCOD as GRPCOD, SG.SGRDES as SUBGRUPO, P.SGRCOD as SGRCOD, P.PRONCM as NCM, " +
                     "P.PROCEST as CEST from PRODUTO P left outer join PRODUTOAUX PA on PA.PROCOD=P.PROCOD " +
                     "left outer join SECAO S on S.SECCOD=P.SECCOD " +
                     "left outer join GRUPO G on G.SECCOD = P.SECCOD and G.GRPCOD = P.GRPCOD " +
@@ -42,7 +42,7 @@ namespace CorretorEAN
                                 Grupo = dataTable.Rows[i]["GRUPO"].ToString(),
                                 Grpcod = dataTable.Rows[i]["GRPCOD"].ToString(),
                                 Subgrupo = dataTable.Rows[i]["SUBGRUPO"].ToString(),
-                                Sgrcod = dataTable.Rows[i]["REDUZIDA"].ToString(),
+                                Sgrcod = dataTable.Rows[i]["SGRCOD"].ToString(),
                                 NCM = dataTable.Rows[i]["NCM"].ToString(),
                                 CEST = dataTable.Rows[i]["CEST"].ToString(),
                             });
@@ -68,7 +68,7 @@ namespace CorretorEAN
             {
                 connectionSysPDV.Open();
                 FbCommand fbCommand = new FbCommand(@"select P.PROCOD as CODIGO, PA.PROCODAUX as EAN, P.PRODES as DESCRICAO, P.PRODESRDZ as REDUZIDA, " +
-                    "S.SECDES as SECAO, P.SECCOD as SECCOD, G.GRPDES as GRUPO, P.GRPCOD as GRPCOD, SG.SGRDES as SUBGRUPO, P.SGRCOD as SUBGRUPO, P.PRONCM as NCM, " +
+                    "S.SECDES as SECAO, P.SECCOD as SECCOD, G.GRPDES as GRUPO, P.GRPCOD as GRPCOD, SG.SGRDES as SUBGRUPO, P.SGRCOD as SGRCOD, P.PRONCM as NCM, " +
                     "P.PROCEST as CEST from PRODUTO P left outer join PRODUTOAUX PA on PA.PROCOD=P.PROCOD " +
                     "left outer join SECAO S on S.SECCOD=P.SECCOD " +
                     "left outer join GRUPO G on G.SECCOD = P.SECCOD and G.GRPCOD = P.GRPCOD " +
@@ -92,7 +92,7 @@ namespace CorretorEAN
                                 Grupo = dataTable.Rows[i]["GRUPO"].ToString(),
                                 Grpcod = dataTable.Rows[i]["GRPCOD"].ToString(),
                                 Subgrupo = dataTable.Rows[i]["SUBGRUPO"].ToString(),
-                                Sgrcod = dataTable.Rows[i]["REDUZIDA"].ToString(),
+                                Sgrcod = dataTable.Rows[i]["SGRCOD"].ToString(),
                                 NCM = dataTable.Rows[i]["NCM"].ToString(),
                                 CEST = dataTable.Rows[i]["CEST"].ToString(),
                             });
@@ -104,6 +104,10 @@ namespace CorretorEAN
             {
                 MessageBox.Show(error.Message);
             }
+            finally
+            {
+                connectionSysPDV.Close();
+            }
             return produtos.Intersect(products, new ProdutoEanComparer()).ToList();
         }
 
@@ -114,7 +118,7 @@ namespace CorretorEAN
             {
                 connectionModel.Open();
                 FbCommand fbCommand = new FbCommand(@"select P.CODIGO as EAN, P.DESCRICAO as DESCRICAO, P.REDUZIDA as REDUZIDA, " +
-                    "S.DESCRICAO as SECAO, P.SECAO_ID as SECCOD, G.DESCRICAO as GRUPO, P.GRUPO_ID as GRPCOD, SG.DESCRICAO as SUBGRUPO, P.SUBGRUPO_ID as SUBGRUPO, P.NCM as NCM, " +
+                    "S.DESCRICAO as SECAO, P.SECAO_ID as SECCOD, G.DESCRICAO as GRUPO, P.GRUPO_ID as GRPCOD, SG.DESCRICAO as SUBGRUPO, P.SUBGRUPO_ID as SGRCOD, P.NCM as NCM, " +
                     "P.CEST as CEST from PRODUCTS P " +
                     "left outer join SECAO S on S.SECAO_ID = P.SECAO_ID " +
                     "left outer join GRUPO G on G.SECAO_ID = P.SECAO_ID and G.GRUPO_ID = P.GRUPO_ID " +
@@ -136,7 +140,7 @@ namespace CorretorEAN
                                 Grupo = dataTable.Rows[i]["GRUPO"].ToString(),
                                 Grpcod = dataTable.Rows[i]["GRPCOD"].ToString(),
                                 Subgrupo = dataTable.Rows[i]["SUBGRUPO"].ToString(),
-                                Sgrcod = dataTable.Rows[i]["REDUZIDA"].ToString(),
+                                Sgrcod = dataTable.Rows[i]["SGRCOD"].ToString(),
                                 NCM = dataTable.Rows[i]["NCM"].ToString(),
                                 CEST = dataTable.Rows[i]["CEST"].ToString(),
                             });
@@ -155,41 +159,75 @@ namespace CorretorEAN
             return produtos;
         }
 
-        public static int UpdateProdutosSysPDV(List<Produto> produtos, string secao, string grupo, string subgrupo, string ncm, string cest)
+        public static bool UpdateProdutosSysPDV(string procod, Produto produto)
         {
-            int counter = 0;
-            if (secao.Equals("") || grupo.Equals("") || subgrupo.Equals(""))
+            if (produto.Seccod.Equals(""))
             {
                 throw new ArgumentNullException("Campos obrigatórios não foram preenchidos!");
             }
             try
             {
                 connectionSysPDV.Open();
-                for (int i = 0; i < produtos.Count; i++)
+                FbCommand command = new FbCommand("update produto set ", connectionSysPDV);
+                if (!produto.Secao.Equals(string.Empty))
                 {
-                    FbCommand command = new FbCommand("update produto set seccod=@seccod, grpcod=@grpcod, sgrcod=@sgrcod, proncm=@proncm," +
-                        " gencodigo=@gencodigo, procest=@procest where procod=@procod", connectionSysPDV);
-                    command.Parameters.Add("seccod", FbDbType.VarChar).Value = secao;
-                    command.Parameters.Add("grpcod", FbDbType.VarChar).Value = grupo;
-                    command.Parameters.Add("sgrcod", FbDbType.VarChar).Value = subgrupo;
-                    command.Parameters.Add("proncm", FbDbType.VarChar).Value = ncm == "" ? produtos[i].NCM : ncm;
-                    command.Parameters.Add("gencodigo", FbDbType.VarChar).Value = ncm == "" ? produtos[i].NCM == "" ? "" : produtos[i].NCM.Substring(0, 2) : ncm.Substring(0, 2);
-                    command.Parameters.Add("procest", FbDbType.VarChar).Value = cest == "" ? produtos[i].CEST : cest;
-                    command.Parameters.Add("procod", FbDbType.VarChar).Value = produtos[i].Codigo;
-
-                    command.ExecuteScalar();
-                    counter++;
+                    if(!command.CommandText.Equals("update produto set "))
+                    {
+                        command.CommandText += ", ";
+                    }
+                    command.CommandText += "seccod=@seccod, grpcod=@grpcod, sgrcod=@sgrcod ";
+                    command.Parameters.Add("seccod", FbDbType.VarChar).Value = produto.Seccod;
+                    command.Parameters.Add("grpcod", FbDbType.VarChar).Value = produto.Grpcod == "" ? "000" : produto.Grpcod;
+                    command.Parameters.Add("sgrcod", FbDbType.VarChar).Value = produto.Sgrcod == "" ? "000" : produto.Sgrcod;
                 }
+                if (!produto.NCM.Equals(string.Empty))
+                {
+                    if (!command.CommandText.Equals("update produto set "))
+                    {
+                        command.CommandText += ", ";
+                    }
+                    command.CommandText += "proncm=@proncm, gencodigo=@gencodigo, procest=@procest ";
+                    command.Parameters.Add("proncm", FbDbType.VarChar).Value = produto.NCM;
+                    command.Parameters.Add("gencodigo", FbDbType.VarChar).Value = produto.NCM.Substring(0,2) ;
+                    command.Parameters.Add("procest", FbDbType.VarChar).Value = produto.CEST;
+
+                }
+                if (!produto.Descricao.Equals(string.Empty))
+                {
+                    if (!command.CommandText.Equals("update produto set "))
+                    {
+                        command.CommandText += ", ";
+                    }
+                    command.CommandText += "prodes=@prodes ";
+                    command.Parameters.Add("prodes", FbDbType.VarChar).Value = produto.Descricao;
+                }
+                if (!produto.Reduzida.Equals(string.Empty))
+                {
+                    if (!command.CommandText.Equals("update produto set "))
+                    {
+                        command.CommandText += ", ";
+                    }
+                    command.CommandText += "prodesrdz=@prodesrdz ";
+                    command.Parameters.Add("prodesrdz", FbDbType.VarChar).Value = produto.Reduzida;
+                }
+                command.CommandText += "where procod=@procod";
+                command.Parameters.Add("procod", FbDbType.VarChar).Value = procod;
+                
+                command.ExecuteScalar();
             }
             catch (FbException error)
             {
+                if (error.Message.ToLower().Contains("truncation"))
+                {
+                    throw new InvalidOperationException("Arithmethic Truncation Exception no Produto :" + procod);
+                }
                 throw error;
             }
             finally
             {
                 connectionSysPDV.Close();
             }
-            return counter;
+            return true;
         }
 
     }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FirebirdSql.Data.FirebirdClient;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -67,6 +68,17 @@ namespace CorretorEAN
             return foundElement;
         }
 
+        public void EnableAll()
+        {
+            ckbClassificacao.IsEnabled = !ckbClassificacao.IsEnabled;
+            ckbDescricao.IsEnabled = !ckbDescricao.IsEnabled;
+            ckbDescricaoReduzida.IsEnabled = !ckbDescricaoReduzida.IsEnabled;
+            ckbNCM.IsEnabled = !ckbNCM.IsEnabled;
+            lvOrigem.IsEnabled = !lvOrigem.IsEnabled;
+            lvDestino.IsEnabled = !lvDestino.IsEnabled;
+            btTransferir.IsEnabled = !btTransferir.IsEnabled;
+        }
+
         #endregion
 
         #region Events
@@ -90,6 +102,7 @@ namespace CorretorEAN
             }
             if (result == MessageBoxResult.Yes)
             {
+                EnableAll();
                 BackgroundWorker worker = new BackgroundWorker();
                 worker.WorkerReportsProgress = true;
                 worker.DoWork += Worker_DoWork;
@@ -99,20 +112,6 @@ namespace CorretorEAN
             }
         }
 
-        private void Worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
-        private void Worker_ProgressChanged(object sender, ProgressChangedEventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
-        private void Worker_DoWork(object sender, DoWorkEventArgs e)
-        {
-            throw new NotImplementedException();
-        }
 
         private void ckbFilters_Checked(object sender, RoutedEventArgs e)
         {
@@ -127,6 +126,47 @@ namespace CorretorEAN
             else
             {
                 btTransferir.IsEnabled = false;
+            }
+        }
+        #endregion
+
+        #region Workers
+
+        private void Worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            MessageBox.Show("Concluido com Sucesso");
+            EnableAll();
+            pgBar.Value = 0;
+        }
+
+        private void Worker_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            pgBar.Value = e.ProgressPercentage;
+        }
+
+        private void Worker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            var worker = sender as BackgroundWorker;
+            try
+            {
+                for (int i = 0; i< Origem.Count; i++)
+                {
+                    if (Origem[i].Ean.Equals(Destino[i].Ean))
+                    {
+                        try
+                        {
+                            ConexaoFirebird.UpdateProdutosSysPDV(Origem[i].Codigo, Destino[i]);
+                        }catch(InvalidOperationException fbError)
+                        {
+                            MessageBox.Show(fbError.Message);
+                        }
+                        worker.ReportProgress((100 * i / Origem.Count));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
             }
         }
         #endregion
