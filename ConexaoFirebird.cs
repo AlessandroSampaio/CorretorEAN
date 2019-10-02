@@ -2,35 +2,28 @@
 using FirebirdSql.Data.FirebirdClient;
 using System.Collections.Generic;
 using System.Data;
+using System.Windows;
+using System.Linq;
 
 namespace CorretorEAN
 {
     internal static class ConexaoFirebird
     {
         private readonly static FbConnection connectionSysPDV = new FbConnection(@"DataSource=localhost; Database=C:\SysPDV\SysPDV_SRV.fdb; User=sysdba; Password=masterkey");
-        private readonly static FbConnection connectionModel = new FbConnection(@"DataSource=localhost; Database=C:\SysPDV\baseDirectory.fdb; User=sysdba; Password=masterkey");
+        private readonly static FbConnection connectionModel = new FbConnection(@"DataSource=localhost; Database=C:\SysPDV\BaseModel.fdb; User=sysdba; Password=masterkey");
 
-        public static List<Produto> GetListProdutosSysPDV(int opt)
+        public static List<Produto> GetListProdutosSysPDV()
         {
-            FbConnection connection;
-            if(opt == 1)
-            {
-                connection = connectionSysPDV;
-            }
-            else
-            {
-                connection = connectionModel;
-            }
             List<Produto> produtos = new List<Produto>();
             try
             {
-                connection.Open();
-                FbCommand fbCommand = new FbCommand(@"select P.PROCOD as CODIGO, PA.PROCODAUX as EAN, P.PRODES as DESCRICAO, P.PRODESRDZ as REDUZIDA, "+
-                    "S.SECDES as SECAO, P.SECCOD as SECCOD, G.GRPDES as GRUPO, P.GRPCOD as GRPCOD, SG.SGRDES as SUBGRUPO, P.SGRCOD as SUBGRUPO, P.PRONCM as NCM, "+
+                connectionSysPDV.Open();
+                FbCommand fbCommand = new FbCommand(@"select P.PROCOD as CODIGO, PA.PROCODAUX as EAN, P.PRODES as DESCRICAO, P.PRODESRDZ as REDUZIDA, " +
+                    "S.SECDES as SECAO, P.SECCOD as SECCOD, G.GRPDES as GRUPO, P.GRPCOD as GRPCOD, SG.SGRDES as SUBGRUPO, P.SGRCOD as SUBGRUPO, P.PRONCM as NCM, " +
                     "P.PROCEST as CEST from PRODUTO P left outer join PRODUTOAUX PA on PA.PROCOD=P.PROCOD " +
-                    "left outer join SECAO S on S.SECCOD=P.SECCOD "+
-                    "left outer join GRUPO G on G.SECCOD = P.SECCOD and G.GRPCOD = P.GRPCOD "+
-                    "left outer join SUBGRUPO SG on SG.SECCOD = P.SECCOD and SG.GRPCOD = P.GRPCOD AND SG.SGRCOD = P.SGRCOD order by prodes", connection);
+                    "left outer join SECAO S on S.SECCOD=P.SECCOD " +
+                    "left outer join GRUPO G on G.SECCOD = P.SECCOD and G.GRPCOD = P.GRPCOD " +
+                    "left outer join SUBGRUPO SG on SG.SECCOD = P.SECCOD and SG.GRPCOD = P.GRPCOD AND SG.SGRCOD = P.SGRCOD order by PA.PROCODAUX", connectionSysPDV);
                 using (FbDataAdapter fbDataAdapter = new FbDataAdapter(fbCommand))
                 {
                     using (DataTable dataTable = new DataTable())
@@ -63,16 +56,109 @@ namespace CorretorEAN
             }
             finally
             {
-                connection.Close();
+                connectionSysPDV.Close();
             }
             return produtos;
         }
 
-        
+        public static List<Produto> GetListProdutosSysPDV(List<Produto> products)
+        {
+            List<Produto> produtos = new List<Produto>();
+            try
+            {
+                connectionSysPDV.Open();
+                FbCommand fbCommand = new FbCommand(@"select P.PROCOD as CODIGO, PA.PROCODAUX as EAN, P.PRODES as DESCRICAO, P.PRODESRDZ as REDUZIDA, " +
+                    "S.SECDES as SECAO, P.SECCOD as SECCOD, G.GRPDES as GRUPO, P.GRPCOD as GRPCOD, SG.SGRDES as SUBGRUPO, P.SGRCOD as SUBGRUPO, P.PRONCM as NCM, " +
+                    "P.PROCEST as CEST from PRODUTO P left outer join PRODUTOAUX PA on PA.PROCOD=P.PROCOD " +
+                    "left outer join SECAO S on S.SECCOD=P.SECCOD " +
+                    "left outer join GRUPO G on G.SECCOD = P.SECCOD and G.GRPCOD = P.GRPCOD " +
+                    "left outer join SUBGRUPO SG on SG.SECCOD = P.SECCOD and SG.GRPCOD = P.GRPCOD AND SG.SGRCOD = P.SGRCOD " +
+                    "order by PA.PROCODAUX", connectionSysPDV);
+                using (FbDataAdapter fbDataAdapter = new FbDataAdapter(fbCommand))
+                {
+                    using (DataTable dataTable = new DataTable())
+                    {
+                        fbDataAdapter.Fill(dataTable);
+                        for (int i = 0; i < dataTable.Rows.Count; i++)
+                        {
+                            produtos.Add(new Produto()
+                            {
+                                Codigo = dataTable.Rows[i]["CODIGO"].ToString(),
+                                Ean = dataTable.Rows[i]["EAN"].ToString().Trim(' '),
+                                Descricao = dataTable.Rows[i]["DESCRICAO"].ToString(),
+                                Reduzida = dataTable.Rows[i]["REDUZIDA"].ToString(),
+                                Secao = dataTable.Rows[i]["SECAO"].ToString(),
+                                Seccod = dataTable.Rows[i]["SECCOD"].ToString(),
+                                Grupo = dataTable.Rows[i]["GRUPO"].ToString(),
+                                Grpcod = dataTable.Rows[i]["GRPCOD"].ToString(),
+                                Subgrupo = dataTable.Rows[i]["SUBGRUPO"].ToString(),
+                                Sgrcod = dataTable.Rows[i]["REDUZIDA"].ToString(),
+                                NCM = dataTable.Rows[i]["NCM"].ToString(),
+                                CEST = dataTable.Rows[i]["CEST"].ToString(),
+                            });
+                        }
+                    }
+                }
+            }
+            catch (Exception error)
+            {
+                MessageBox.Show(error.Message);
+            }
+            return produtos.Intersect(products, new ProdutoEanComparer()).ToList();
+        }
+
+        public static List<Produto> GetListProdutosModel()
+        {
+            List<Produto> produtos = new List<Produto>();
+            try
+            {
+                connectionModel.Open();
+                FbCommand fbCommand = new FbCommand(@"select P.CODIGO as EAN, P.DESCRICAO as DESCRICAO, P.REDUZIDA as REDUZIDA, " +
+                    "S.DESCRICAO as SECAO, P.SECAO_ID as SECCOD, G.DESCRICAO as GRUPO, P.GRUPO_ID as GRPCOD, SG.DESCRICAO as SUBGRUPO, P.SUBGRUPO_ID as SUBGRUPO, P.NCM as NCM, " +
+                    "P.CEST as CEST from PRODUCTS P " +
+                    "left outer join SECAO S on S.SECAO_ID = P.SECAO_ID " +
+                    "left outer join GRUPO G on G.SECAO_ID = P.SECAO_ID and G.GRUPO_ID = P.GRUPO_ID " +
+                    "left outer join SUBGRUPO SG on SG.SECAO_ID = P.SECAO_ID and SG.GRUPO_ID = P.GRUPO_ID AND SG.SUBGRUPO_ID = P.SUBGRUPO_ID order by P.CODIGO", connectionModel);
+                using (FbDataAdapter fbDataAdapter = new FbDataAdapter(fbCommand))
+                {
+                    using (DataTable dataTable = new DataTable())
+                    {
+                        fbDataAdapter.Fill(dataTable);
+                        for (int i = 0; i < dataTable.Rows.Count; i++)
+                        {
+                            produtos.Add(new Produto()
+                            {
+                                Ean = dataTable.Rows[i]["EAN"].ToString(),
+                                Descricao = dataTable.Rows[i]["DESCRICAO"].ToString(),
+                                Reduzida = dataTable.Rows[i]["REDUZIDA"].ToString(),
+                                Secao = dataTable.Rows[i]["SECAO"].ToString(),
+                                Seccod = dataTable.Rows[i]["SECCOD"].ToString(),
+                                Grupo = dataTable.Rows[i]["GRUPO"].ToString(),
+                                Grpcod = dataTable.Rows[i]["GRPCOD"].ToString(),
+                                Subgrupo = dataTable.Rows[i]["SUBGRUPO"].ToString(),
+                                Sgrcod = dataTable.Rows[i]["REDUZIDA"].ToString(),
+                                NCM = dataTable.Rows[i]["NCM"].ToString(),
+                                CEST = dataTable.Rows[i]["CEST"].ToString(),
+                            });
+                        }
+                    }
+                }
+            }
+            catch (FbException erro)
+            {
+                throw erro;
+            }
+            finally
+            {
+                connectionModel.Close();
+            }
+            return produtos;
+        }
+
         public static int UpdateProdutosSysPDV(List<Produto> produtos, string secao, string grupo, string subgrupo, string ncm, string cest)
         {
             int counter = 0;
-            if(secao.Equals("") || grupo.Equals("") || subgrupo.Equals(""))
+            if (secao.Equals("") || grupo.Equals("") || subgrupo.Equals(""))
             {
                 throw new ArgumentNullException("Campos obrigatórios não foram preenchidos!");
             }
@@ -87,7 +173,7 @@ namespace CorretorEAN
                     command.Parameters.Add("grpcod", FbDbType.VarChar).Value = grupo;
                     command.Parameters.Add("sgrcod", FbDbType.VarChar).Value = subgrupo;
                     command.Parameters.Add("proncm", FbDbType.VarChar).Value = ncm == "" ? produtos[i].NCM : ncm;
-                    command.Parameters.Add("gencodigo", FbDbType.VarChar).Value = ncm == "" ? produtos[i].NCM == "" ? "": produtos[i].NCM.Substring(0, 2) : ncm.Substring(0,2);
+                    command.Parameters.Add("gencodigo", FbDbType.VarChar).Value = ncm == "" ? produtos[i].NCM == "" ? "" : produtos[i].NCM.Substring(0, 2) : ncm.Substring(0, 2);
                     command.Parameters.Add("procest", FbDbType.VarChar).Value = cest == "" ? produtos[i].CEST : cest;
                     command.Parameters.Add("procod", FbDbType.VarChar).Value = produtos[i].Codigo;
 
