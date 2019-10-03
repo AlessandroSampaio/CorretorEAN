@@ -159,7 +159,7 @@ namespace CorretorEAN
             return produtos;
         }
 
-        public static bool UpdateProdutosSysPDV(string procod, Produto produto)
+        public static bool UpdateProdutosSysPDV(string procod, Produto produto, bool descr, bool reduz, bool classif, bool ncm)
         {
             if (produto.Seccod.Equals(""))
             {
@@ -169,7 +169,7 @@ namespace CorretorEAN
             {
                 connectionSysPDV.Open();
                 FbCommand command = new FbCommand("update produto set ", connectionSysPDV);
-                if (!produto.Secao.Equals(string.Empty))
+                if (!produto.Secao.Equals(string.Empty) && classif)
                 {
                     if(!command.CommandText.Equals("update produto set "))
                     {
@@ -180,7 +180,7 @@ namespace CorretorEAN
                     command.Parameters.Add("grpcod", FbDbType.VarChar).Value = produto.Grpcod == "" ? "000" : produto.Grpcod;
                     command.Parameters.Add("sgrcod", FbDbType.VarChar).Value = produto.Sgrcod == "" ? "000" : produto.Sgrcod;
                 }
-                if (!produto.NCM.Equals(string.Empty))
+                if (!produto.NCM.Equals(string.Empty) && ncm)
                 {
                     if (!command.CommandText.Equals("update produto set "))
                     {
@@ -192,7 +192,7 @@ namespace CorretorEAN
                     command.Parameters.Add("procest", FbDbType.VarChar).Value = produto.CEST;
 
                 }
-                if (!produto.Descricao.Equals(string.Empty))
+                if (!produto.Descricao.Equals(string.Empty) && descr)
                 {
                     if (!command.CommandText.Equals("update produto set "))
                     {
@@ -201,7 +201,7 @@ namespace CorretorEAN
                     command.CommandText += "prodes=@prodes ";
                     command.Parameters.Add("prodes", FbDbType.VarChar).Value = produto.Descricao;
                 }
-                if (!produto.Reduzida.Equals(string.Empty))
+                if (!produto.Reduzida.Equals(string.Empty) && reduz)
                 {
                     if (!command.CommandText.Equals("update produto set "))
                     {

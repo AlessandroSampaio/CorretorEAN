@@ -41,12 +41,6 @@ namespace CorretorEAN
             lvDestino.ItemsSource = Destino;
         }
 
-        private void CarregaLV()
-        {
-            Destino = ConexaoFirebird.GetListProdutosModel();
-            Origem = ConexaoFirebird.GetListProdutosSysPDV(Destino);
-            Destino = Destino.Intersect(Origem, new ProdutoEanComparer()).ToList();
-        }
 
         #region Util
         public Visual GetDescendantByType(Visual element, Type type)
@@ -79,6 +73,13 @@ namespace CorretorEAN
             btTransferir.IsEnabled = !btTransferir.IsEnabled;
         }
 
+        private void CarregaLV()
+        {
+            Destino = ConexaoFirebird.GetListProdutosModel();
+            Origem = ConexaoFirebird.GetListProdutosSysPDV(Destino);
+            Destino = Destino.Intersect(Origem, new ProdutoEanComparer()).ToList();
+        }
+
         #endregion
 
         #region Events
@@ -88,13 +89,13 @@ namespace CorretorEAN
             ScrollViewer _listboxScrollViewer2 = GetDescendantByType(lvDestino, typeof(ScrollViewer)) as ScrollViewer;
             _listboxScrollViewer2.ScrollToVerticalOffset(_listboxScrollViewer1.VerticalOffset);
         }
-        
+
         private void BtTransferir_Click(object sender, RoutedEventArgs e)
         {
             MessageBoxResult result;
             if (Classificacao)
             {
-                result = MessageBox.Show("Você marcou a opção \"CLASSIFICAO\" o que acarretará na substituição de todo o cadastro referente a SEÇAO/GRUPO/SUBGRUPO. Deseja prosseguir mesmo assim? ", "",MessageBoxButton.YesNo);
+                result = MessageBox.Show("Você marcou a opção \"CLASSIFICAO\" o que acarretará na substituição de todo o cadastro referente a SEÇAO/GRUPO/SUBGRUPO. Deseja prosseguir mesmo assim? ", "", MessageBoxButton.YesNo);
             }
             else
             {
@@ -119,7 +120,7 @@ namespace CorretorEAN
             Reduzida = ckbDescricaoReduzida.IsChecked.GetValueOrDefault(false);
             Classificacao = ckbClassificacao.IsChecked.GetValueOrDefault(false);
             NCM = ckbNCM.IsChecked.GetValueOrDefault(false);
-            if(Descricao || Reduzida || Classificacao || NCM)
+            if (Descricao || Reduzida || Classificacao || NCM)
             {
                 btTransferir.IsEnabled = true;
             }
@@ -149,14 +150,15 @@ namespace CorretorEAN
             var worker = sender as BackgroundWorker;
             try
             {
-                for (int i = 0; i< Origem.Count; i++)
+                for (int i = 0; i < Origem.Count; i++)
                 {
                     if (Origem[i].Ean.Equals(Destino[i].Ean))
                     {
                         try
                         {
-                            ConexaoFirebird.UpdateProdutosSysPDV(Origem[i].Codigo, Destino[i]);
-                        }catch(InvalidOperationException fbError)
+                            ConexaoFirebird.UpdateProdutosSysPDV(Origem[i].Codigo, Destino[i], Descricao, Reduzida, Classificacao, NCM);
+                        }
+                        catch (InvalidOperationException fbError)
                         {
                             MessageBox.Show(fbError.Message);
                         }
