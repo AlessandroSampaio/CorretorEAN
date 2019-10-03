@@ -1,22 +1,10 @@
-﻿using FirebirdSql.Data.FirebirdClient;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web.Script.Serialization;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace CorretorEAN
 {
@@ -43,6 +31,7 @@ namespace CorretorEAN
 
 
         #region Util
+
         public Visual GetDescendantByType(Visual element, Type type)
         {
             if (element == null) return null;
@@ -83,6 +72,7 @@ namespace CorretorEAN
         #endregion
 
         #region Events
+
         private void Lbx1_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
             ScrollViewer _listboxScrollViewer1 = GetDescendantByType(lvOrigem, typeof(ScrollViewer)) as ScrollViewer;
@@ -104,17 +94,23 @@ namespace CorretorEAN
             if (result == MessageBoxResult.Yes)
             {
                 EnableAll();
-                using (BackgroundWorker worker = new BackgroundWorker())
+                if (Classificacao)
                 {
-                    worker.WorkerReportsProgress = true;
-                    worker.DoWork += Worker_DoWork;
-                    worker.ProgressChanged += Worker_ProgressChanged;
-                    worker.RunWorkerCompleted += Worker_RunWorkerCompleted;
-                    worker.RunWorkerAsync();
+                    using (BackgroundWorker worker = new BackgroundWorker())
+                    {
+                        worker.WorkerReportsProgress = true;
+                        worker.ProgressChanged += Worker_ProgressChanged_Secao;
+                        worker.DoWork += Worker_DoWork_Secoes;
+                        worker.RunWorkerCompleted += Worker_RunWorkerCompleted_Secao;
+                        worker.RunWorkerAsync();
+                    }
+                }
+                else
+                {
+                    AtualizarProdutos();
                 }
             }
         }
-
 
         private void CkbFilters_Checked(object sender, RoutedEventArgs e)
         {
@@ -131,20 +127,33 @@ namespace CorretorEAN
                 btTransferir.IsEnabled = false;
             }
         }
+
         #endregion
 
         #region Workers
+
+        private void AtualizarProdutos()
+        {
+            using (BackgroundWorker worker = new BackgroundWorker())
+            {
+                worker.WorkerReportsProgress = true;
+                worker.DoWork += Worker_DoWork;
+                worker.ProgressChanged += Worker_ProgressChanged;
+                worker.RunWorkerCompleted += Worker_RunWorkerCompleted;
+                worker.RunWorkerAsync();
+            }
+        }
 
         private void Worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             MessageBox.Show("Concluido com Sucesso");
             EnableAll();
-            pgBar.Value = 0;
+            pgBar_Produtos.Value = 0;
         }
 
         private void Worker_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            pgBar.Value = e.ProgressPercentage;
+            pgBar_Produtos.Value = e.ProgressPercentage;
         }
 
         private void Worker_DoWork(object sender, DoWorkEventArgs e)
@@ -164,7 +173,7 @@ namespace CorretorEAN
                         catch (InvalidOperationException fbError)
                         {
                             MessageBox.Show(fbError.Message);
-                            Log.AppendFile(Destino[i], currrentWork);
+                            Log.AppendFile(Origem[i], currrentWork);
                         }
                         worker.ReportProgress((100 * i / Origem.Count));
                     }
@@ -175,6 +184,30 @@ namespace CorretorEAN
                 MessageBox.Show(ex.Message);
             }
         }
+
+
+        private void Worker_RunWorkerCompleted_Secao(object sender, RunWorkerCompletedEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void Worker_ProgressChanged_Secao(object sender, ProgressChangedEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void Worker_DoWork_Secoes(object sender, DoWorkEventArgs e)
+        {
+            try
+            {
+                if(ConexaoFirebird.DeleteSecoesSysPDV())
+                    ConexaoFirebird.CreateSecoesSysPDV();
+            }
+            catch (Exception error) {
+                MessageBox.Show(error.Message);
+            }
+        }
+
         #endregion
     }
 }

@@ -171,7 +171,7 @@ namespace CorretorEAN
                 FbCommand command = new FbCommand("update produto set ", connectionSysPDV);
                 if (!produto.Secao.Equals(string.Empty) && classif)
                 {
-                    if(!command.CommandText.Equals("update produto set "))
+                    if (!command.CommandText.Equals("update produto set "))
                     {
                         command.CommandText += ", ";
                     }
@@ -188,7 +188,7 @@ namespace CorretorEAN
                     }
                     command.CommandText += "proncm=@proncm, gencodigo=@gencodigo, procest=@procest ";
                     command.Parameters.Add("proncm", FbDbType.VarChar).Value = produto.NCM;
-                    command.Parameters.Add("gencodigo", FbDbType.VarChar).Value = produto.NCM.Substring(0,2) ;
+                    command.Parameters.Add("gencodigo", FbDbType.VarChar).Value = produto.NCM.Substring(0, 2);
                     command.Parameters.Add("procest", FbDbType.VarChar).Value = produto.CEST;
 
                 }
@@ -212,7 +212,7 @@ namespace CorretorEAN
                 }
                 command.CommandText += "where procod=@procod";
                 command.Parameters.Add("procod", FbDbType.VarChar).Value = procod;
-                
+
                 command.ExecuteScalar();
                 command.Dispose();
 
@@ -232,5 +232,75 @@ namespace CorretorEAN
             return true;
         }
 
+        public static bool DeleteSecoesSysPDV()
+        {
+            try
+            {
+                connectionSysPDV.Open();
+                using (FbCommand command = new FbCommand("delete from subgrupo", connectionSysPDV))
+                {
+                    command.ExecuteNonQuery();
+                    command.CommandText = "delete from grupo";
+                    command.ExecuteNonQuery();
+                    command.CommandText = "delete from secao";
+                    command.ExecuteNonQuery();
+                }
+            }
+            catch (FbException error)
+            {
+                throw error;
+            }
+            finally
+            {
+                connectionSysPDV.Close();
+            }
+            return true;
+        }
+
+        public static bool CreateSecoesSysPDV()
+        {
+            try
+            {
+                connectionModel.Open();
+                using (FbCommand commandModel = new FbCommand("select secao_id, descricao from secao", connectionModel))
+                {
+                    using (FbDataAdapter fbData = new FbDataAdapter(commandModel))
+                    {
+                        using (DataTable dt = new DataTable())
+                        {
+                            fbData.Fill(dt);
+                            if (dt.Rows.Count > 0)
+                            {
+                                connectionSysPDV.Open();
+                                using (FbCommand insertSecaoSysPDV = new FbCommand("insert into secao (seccod, secdes) values (@seccod, @secdes)", connectionSysPDV))
+                                {
+                                    insertSecaoSysPDV.Parameters.Add("seccod", FbDbType.Char).Value = "";// dt.Rows[i]["secao_id"].ToString();
+                                    insertSecaoSysPDV.Parameters.Add("secdes", FbDbType.VarChar).Value = "";// dt.Rows[i]["descricao"].ToString();
+                                    for (int i = 0; i < dt.Rows.Count; i++)
+                                    {
+                                        insertSecaoSysPDV.Parameters["seccod"].Value = dt.Rows[i]["secao_id"].ToString(); ;
+                                        insertSecaoSysPDV.Parameters["secdes"].Value = dt.Rows[i]["descricao"].ToString(); ;
+                                        insertSecaoSysPDV.ExecuteNonQuery();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch(FbException error)
+            {
+                throw error;
+            }catch(Exception error)
+            {
+                throw error;
+            }
+            finally
+            {
+                connectionModel.Close();
+                connectionSysPDV.Close();
+            }
+            return true;
+        }
     }
 }

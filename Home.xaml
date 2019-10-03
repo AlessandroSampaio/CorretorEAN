@@ -59,8 +59,7 @@
                 </LinearGradientBrush>
             </Button.Background>
         </Button>
-        <ProgressBar HorizontalAlignment="Left" Height="10" VerticalAlignment="Top" Width="100"/>
-        <ProgressBar x:Name="pgBar" HorizontalAlignment="Left" Height="15" Margin="10,425,0,0" VerticalAlignment="Top" Width="772" Grid.ColumnSpan="3"/>
-
+        <ProgressBar x:Name="pgBar_Produtos" HorizontalAlignment="Left" Margin="10,439,0,16" Width="772" Grid.ColumnSpan="3"/>
+        <ProgressBar x:Name="pgBar_Secao" HorizontalAlignment="Left" Margin="10,416,0,39" Width="772" Grid.ColumnSpan="3"/>
     </Grid>
 </Window>
