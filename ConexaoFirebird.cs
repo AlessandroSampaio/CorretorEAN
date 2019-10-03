@@ -214,6 +214,8 @@ namespace CorretorEAN
                 command.Parameters.Add("procod", FbDbType.VarChar).Value = procod;
                 
                 command.ExecuteScalar();
+                command.Dispose();
+
             }
             catch (FbException error)
             {

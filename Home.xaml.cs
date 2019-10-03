@@ -83,7 +83,7 @@ namespace CorretorEAN
         #endregion
 
         #region Events
-        private void lbx1_ScrollChanged(object sender, ScrollChangedEventArgs e)
+        private void Lbx1_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
             ScrollViewer _listboxScrollViewer1 = GetDescendantByType(lvOrigem, typeof(ScrollViewer)) as ScrollViewer;
             ScrollViewer _listboxScrollViewer2 = GetDescendantByType(lvDestino, typeof(ScrollViewer)) as ScrollViewer;
@@ -104,17 +104,19 @@ namespace CorretorEAN
             if (result == MessageBoxResult.Yes)
             {
                 EnableAll();
-                BackgroundWorker worker = new BackgroundWorker();
-                worker.WorkerReportsProgress = true;
-                worker.DoWork += Worker_DoWork;
-                worker.ProgressChanged += Worker_ProgressChanged;
-                worker.RunWorkerCompleted += Worker_RunWorkerCompleted;
-                worker.RunWorkerAsync();
+                using (BackgroundWorker worker = new BackgroundWorker())
+                {
+                    worker.WorkerReportsProgress = true;
+                    worker.DoWork += Worker_DoWork;
+                    worker.ProgressChanged += Worker_ProgressChanged;
+                    worker.RunWorkerCompleted += Worker_RunWorkerCompleted;
+                    worker.RunWorkerAsync();
+                }
             }
         }
 
 
-        private void ckbFilters_Checked(object sender, RoutedEventArgs e)
+        private void CkbFilters_Checked(object sender, RoutedEventArgs e)
         {
             Descricao = ckbDescricao.IsChecked.GetValueOrDefault(false);
             Reduzida = ckbDescricaoReduzida.IsChecked.GetValueOrDefault(false);
@@ -147,6 +149,7 @@ namespace CorretorEAN
 
         private void Worker_DoWork(object sender, DoWorkEventArgs e)
         {
+            DateTime currrentWork = DateTime.Now;
             var worker = sender as BackgroundWorker;
             try
             {
@@ -161,6 +164,7 @@ namespace CorretorEAN
                         catch (InvalidOperationException fbError)
                         {
                             MessageBox.Show(fbError.Message);
+                            Log.AppendFile(Destino[i], currrentWork);
                         }
                         worker.ReportProgress((100 * i / Origem.Count));
                     }

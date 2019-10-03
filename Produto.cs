@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace CorretorEAN
+﻿namespace CorretorEAN
 {
     public class Produto
     {
@@ -20,5 +14,14 @@ namespace CorretorEAN
         public string Sgrcod { get; set; }
         public string NCM { get; set; }
         public string CEST { get; set; }
+
+        public override string ToString()
+        {
+            return "Codigo : " + Codigo + "\tEAN : " + Ean + "\tProduto : " + Descricao +
+                "\tSecao : " + Seccod + " - " + Secao +
+                "\tGrupo : " + Grpcod + " - " + Grupo +
+                "\tSubGrupo : " + Sgrcod + " - " + Subgrupo +
+                "\tNCM : " + NCM + "\tCEST : " + CEST;
+        }
     }
 }

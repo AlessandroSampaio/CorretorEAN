@@ -15,7 +15,7 @@
             <ColumnDefinition Width="48"/>
             <ColumnDefinition Width="372"/>
         </Grid.ColumnDefinitions>
-        <ListView x:Name="lvOrigem" HorizontalAlignment="Left" Margin="10,44,0,0" Width="355" ScrollViewer.ScrollChanged="lbx1_ScrollChanged" Height="366" VerticalAlignment="Top">
+        <ListView x:Name="lvOrigem" HorizontalAlignment="Left" Margin="10,44,0,0" Width="355" ScrollViewer.ScrollChanged="Lbx1_ScrollChanged" Height="366" VerticalAlignment="Top">
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="CODIGO" DisplayMemberBinding="{Binding Codigo}" Width="Auto"/>
@@ -30,7 +30,7 @@
                 </GridView>
             </ListView.View>
         </ListView>
-        <ListView x:Name="lvDestino" HorizontalAlignment="Left" Height="366" Margin="7,44,0,0" VerticalAlignment="Top" Width="355" Grid.Column="2" ScrollViewer.ScrollChanged="lbx1_ScrollChanged">
+        <ListView x:Name="lvDestino" HorizontalAlignment="Left" Height="366" Margin="7,44,0,0" VerticalAlignment="Top" Width="355" Grid.Column="2" ScrollViewer.ScrollChanged="Lbx1_ScrollChanged">
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="EAN" DisplayMemberBinding="{Binding Ean}" Width="Auto"/>
@@ -44,10 +44,10 @@
                 </GridView>
             </ListView.View>
         </ListView>
-        <CheckBox x:Name="ckbDescricao" Content="Descrição" HorizontalAlignment="Left" Height="16.517" Margin="10,16.18,0,0" VerticalAlignment="Top" Width="100" Checked="ckbFilters_Checked" Unchecked="ckbFilters_Checked"/>
-        <CheckBox x:Name="ckbDescricaoReduzida" Content="Descr. Reduz." HorizontalAlignment="Left" Height="16.517" Margin="130,16.18,0,0" VerticalAlignment="Top" Width="100" Checked="ckbFilters_Checked" Unchecked="ckbFilters_Checked"/>
-        <CheckBox x:Name="ckbClassificacao" Content="Classificação" HorizontalAlignment="Left" Height="16.517" Margin="250,16.18,0,0" VerticalAlignment="Top" Width="100" Checked="ckbFilters_Checked" Unchecked="ckbFilters_Checked"/>
-        <CheckBox x:Name="ckbNCM" Content="NCM / CEST" HorizontalAlignment="Left" Height="16.517" Margin="-55,16.18,0,0" VerticalAlignment="Top" Width="100" Grid.Column="2" Checked="ckbFilters_Checked" Unchecked="ckbFilters_Checked"/>
+        <CheckBox x:Name="ckbDescricao" Content="Descrição" HorizontalAlignment="Left" Height="16.517" Margin="10,16.18,0,0" VerticalAlignment="Top" Width="100" Checked="CkbFilters_Checked" Unchecked="CkbFilters_Checked"/>
+        <CheckBox x:Name="ckbDescricaoReduzida" Content="Descr. Reduz." HorizontalAlignment="Left" Height="16.517" Margin="130,16.18,0,0" VerticalAlignment="Top" Width="100" Checked="CkbFilters_Checked" Unchecked="CkbFilters_Checked"/>
+        <CheckBox x:Name="ckbClassificacao" Content="Classificação" HorizontalAlignment="Left" Height="16.517" Margin="250,16.18,0,0" VerticalAlignment="Top" Width="100" Checked="CkbFilters_Checked" Unchecked="CkbFilters_Checked"/>
+        <CheckBox x:Name="ckbNCM" Content="NCM / CEST" HorizontalAlignment="Left" Height="16.517" Margin="-55,16.18,0,0" VerticalAlignment="Top" Width="100" Grid.Column="2" Checked="CkbFilters_Checked" Unchecked="CkbFilters_Checked"/>
         <Button x:Name="btTransferir" Content="&gt;&gt;" HorizontalAlignment="Left" Height="365.977" Margin="10,44.023,0,0" VerticalAlignment="Top" Width="28" Grid.Column="1" Click="BtTransferir_Click">
             <Button.Background>
                 <LinearGradientBrush EndPoint="0.5,1" MappingMode="RelativeToBoundingBox" StartPoint="0.5,0">
