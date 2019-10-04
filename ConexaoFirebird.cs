@@ -10,7 +10,7 @@ namespace CorretorEAN
     internal static class ConexaoFirebird
     {
         private readonly static FbConnection connectionSysPDV = new FbConnection(@"DataSource=localhost; Database=C:\SysPDV\SysPDV_SRV.fdb; User=sysdba; Password=masterkey");
-        private readonly static FbConnection connectionModel = new FbConnection(@"DataSource=localhost; Database=C:\SysPDV\BaseModel.fdb; User=sysdba; Password=masterkey");
+        private readonly static FbConnection connectionModel = new FbConnection(@"DataSource=localhost; Database="+ AppDomain.CurrentDomain.BaseDirectory + @"BaseModel.fdb; User=sysdba; Password=masterkey");
 
         public static List<Produto> GetListProdutosSysPDV()
         {
@@ -257,7 +257,7 @@ namespace CorretorEAN
             return true;
         }
 
-        public static bool CreateSecoesSysPDV()
+        public static bool CreateSecaoSysPDV()
         {
             try
             {
@@ -292,6 +292,106 @@ namespace CorretorEAN
             {
                 throw error;
             }catch(Exception error)
+            {
+                throw error;
+            }
+            finally
+            {
+                connectionModel.Close();
+                connectionSysPDV.Close();
+            }
+            return true;
+        }
+
+        public static bool CreateGrupoSysPDV()
+        {
+            try
+            {
+                connectionModel.Open();
+                using (FbCommand commandModel = new FbCommand("select secao_id, grupo_id, descricao from grupo", connectionModel))
+                {
+                    using (FbDataAdapter fbData = new FbDataAdapter(commandModel))
+                    {
+                        using (DataTable dt = new DataTable())
+                        {
+                            fbData.Fill(dt);
+                            if (dt.Rows.Count > 0)
+                            {
+                                connectionSysPDV.Open();
+                                using (FbCommand insertSecaoSysPDV = new FbCommand("insert into grupo (seccod, grpcod, grpdes) values (@seccod, @grpcod,  @grpdes)", connectionSysPDV))
+                                {
+                                    insertSecaoSysPDV.Parameters.Add("seccod", FbDbType.Char).Value = "";
+                                    insertSecaoSysPDV.Parameters.Add("grpcod", FbDbType.VarChar).Value = "";
+                                    insertSecaoSysPDV.Parameters.Add("grpdes", FbDbType.VarChar).Value = "";
+                                    for (int i = 0; i < dt.Rows.Count; i++)
+                                    {
+                                        insertSecaoSysPDV.Parameters["seccod"].Value = dt.Rows[i]["secao_id"].ToString();
+                                        insertSecaoSysPDV.Parameters["grpcod"].Value = dt.Rows[i]["grupo_id"].ToString();
+                                        insertSecaoSysPDV.Parameters["grpdes"].Value = dt.Rows[i]["descricao"].ToString();
+                                        insertSecaoSysPDV.ExecuteNonQuery();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (FbException error)
+            {
+                throw error;
+            }
+            catch (Exception error)
+            {
+                throw error;
+            }
+            finally
+            {
+                connectionModel.Close();
+                connectionSysPDV.Close();
+            }
+            return true;
+        }
+
+        public static bool CreateSubGrupoSysPDV()
+        {
+            try
+            {
+                connectionModel.Open();
+                using (FbCommand commandModel = new FbCommand("select secao_id, grupo_id, subgrupo_id, descricao from subgrupo", connectionModel))
+                {
+                    using (FbDataAdapter fbData = new FbDataAdapter(commandModel))
+                    {
+                        using (DataTable dt = new DataTable())
+                        {
+                            fbData.Fill(dt);
+                            if (dt.Rows.Count > 0)
+                            {
+                                connectionSysPDV.Open();
+                                using (FbCommand insertSecaoSysPDV = new FbCommand("insert into subgrupo (seccod, grpcod, sgrcod, sgrdes) values (@seccod, @grpcod, @sgrcod, @sgrdes)", connectionSysPDV))
+                                {
+                                    insertSecaoSysPDV.Parameters.Add("seccod", FbDbType.Char).Value = "";
+                                    insertSecaoSysPDV.Parameters.Add("grpcod", FbDbType.VarChar).Value = "";
+                                    insertSecaoSysPDV.Parameters.Add("sgrcod", FbDbType.VarChar).Value = "";
+                                    insertSecaoSysPDV.Parameters.Add("sgrdes", FbDbType.VarChar).Value = "";
+                                    for (int i = 0; i < dt.Rows.Count; i++)
+                                    {
+                                        insertSecaoSysPDV.Parameters["seccod"].Value = dt.Rows[i]["secao_id"].ToString();
+                                        insertSecaoSysPDV.Parameters["grpcod"].Value = dt.Rows[i]["grupo_id"].ToString();
+                                        insertSecaoSysPDV.Parameters["sgrcod"].Value = dt.Rows[i]["subgrupo_id"].ToString();
+                                        insertSecaoSysPDV.Parameters["sgrdes"].Value = dt.Rows[i]["descricao"].ToString();
+                                        insertSecaoSysPDV.ExecuteNonQuery();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (FbException error)
+            {
+                throw error;
+            }
+            catch (Exception error)
             {
                 throw error;
             }

@@ -23,10 +23,16 @@ namespace CorretorEAN
         public Home()
         {
             InitializeComponent();
-            btTransferir.IsEnabled = false;
-            CarregaLV();
-            lvOrigem.ItemsSource = Origem;
-            lvDestino.ItemsSource = Destino;
+            try
+            {
+                btTransferir.IsEnabled = false;
+                CarregaLV();
+                lvOrigem.ItemsSource = Origem;
+                lvDestino.ItemsSource = Destino;
+            }catch(Exception error)
+            {
+                MessageBox.Show(error.Message);
+            }
         }
 
 
@@ -188,20 +194,26 @@ namespace CorretorEAN
 
         private void Worker_RunWorkerCompleted_Secao(object sender, RunWorkerCompletedEventArgs e)
         {
-            throw new NotImplementedException();
+            AtualizarProdutos();
         }
 
         private void Worker_ProgressChanged_Secao(object sender, ProgressChangedEventArgs e)
         {
-            throw new NotImplementedException();
+            pgBar_Secao.Value = e.ProgressPercentage;
         }
 
         private void Worker_DoWork_Secoes(object sender, DoWorkEventArgs e)
         {
+            var worker = sender as BackgroundWorker;
             try
             {
                 if(ConexaoFirebird.DeleteSecoesSysPDV())
-                    ConexaoFirebird.CreateSecoesSysPDV();
+                    ConexaoFirebird.CreateSecaoSysPDV();
+                worker.ReportProgress(33);
+                ConexaoFirebird.CreateGrupoSysPDV();
+                worker.ReportProgress(66);
+                ConexaoFirebird.CreateSubGrupoSysPDV();
+                worker.ReportProgress(100);
             }
             catch (Exception error) {
                 MessageBox.Show(error.Message);
