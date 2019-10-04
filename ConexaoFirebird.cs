@@ -10,7 +10,7 @@ namespace CorretorEAN
     internal static class ConexaoFirebird
     {
         private readonly static FbConnection connectionSysPDV = new FbConnection(@"DataSource=localhost; Database=C:\SysPDV\SysPDV_SRV.fdb; User=sysdba; Password=masterkey");
-        private readonly static FbConnection connectionModel = new FbConnection(@"DataSource=localhost; Database="+ AppDomain.CurrentDomain.BaseDirectory + @"BaseModel.fdb; User=sysdba; Password=masterkey");
+        private readonly static FbConnection connectionModel = new FbConnection(@"DataSource=localhost; Database=" + AppDomain.CurrentDomain.BaseDirectory + @"BaseModel.fdb; User=sysdba; Password=masterkey");
 
         public static List<Produto> GetListProdutosSysPDV()
         {
@@ -232,6 +232,39 @@ namespace CorretorEAN
             return true;
         }
 
+        public static int UpdateSecaoProdutosSysPDV(List<Produto> produtos, string seccod)
+        {
+            int counter = 0;
+            if (seccod.Equals(""))
+            {
+                throw new ArgumentNullException("Campos obrigatórios não foram preenchidos!");
+            }
+            try
+            {
+                connectionSysPDV.Open();
+                FbCommand command = new FbCommand("update produto set seccod=@seccod, grpcod='000', sgrcod='000' where procod=@procod", connectionSysPDV);
+                command.Parameters.Add("seccod", FbDbType.VarChar).Value = "";
+                command.Parameters.Add("procod", FbDbType.VarChar).Value = "";
+                for (int i = 0; i < produtos.Count; i++)
+                {
+                    command.Parameters["seccod"].Value = seccod;
+                    command.Parameters["procod"].Value = produtos[i].Codigo;
+                    command.ExecuteScalar();
+                    counter++;
+                }
+                command.Dispose();
+            }
+            catch (FbException error)
+            {
+                throw error;
+            }
+            finally
+            {
+                connectionSysPDV.Close();
+            }
+            return counter;
+        }
+
         public static bool DeleteSecoesSysPDV()
         {
             try
@@ -274,24 +307,28 @@ namespace CorretorEAN
                                 connectionSysPDV.Open();
                                 using (FbCommand insertSecaoSysPDV = new FbCommand("insert into secao (seccod, secdes) values (@seccod, @secdes)", connectionSysPDV))
                                 {
-                                    insertSecaoSysPDV.Parameters.Add("seccod", FbDbType.Char).Value = "";// dt.Rows[i]["secao_id"].ToString();
-                                    insertSecaoSysPDV.Parameters.Add("secdes", FbDbType.VarChar).Value = "";// dt.Rows[i]["descricao"].ToString();
+                                    insertSecaoSysPDV.Parameters.Add("seccod", FbDbType.Char).Value = "";
+                                    insertSecaoSysPDV.Parameters.Add("secdes", FbDbType.VarChar).Value = "";
                                     for (int i = 0; i < dt.Rows.Count; i++)
                                     {
-                                        insertSecaoSysPDV.Parameters["seccod"].Value = dt.Rows[i]["secao_id"].ToString(); ;
-                                        insertSecaoSysPDV.Parameters["secdes"].Value = dt.Rows[i]["descricao"].ToString(); ;
+                                        insertSecaoSysPDV.Parameters["seccod"].Value = dt.Rows[i]["secao_id"].ToString();
+                                        insertSecaoSysPDV.Parameters["secdes"].Value = dt.Rows[i]["descricao"].ToString();
                                         insertSecaoSysPDV.ExecuteNonQuery();
                                     }
+                                    insertSecaoSysPDV.Parameters["seccod"].Value = "99";
+                                    insertSecaoSysPDV.Parameters["secdes"].Value = "PRODUTOS NAO LOCALIZADOS";
+                                    insertSecaoSysPDV.ExecuteNonQuery();
                                 }
                             }
                         }
                     }
                 }
             }
-            catch(FbException error)
+            catch (FbException error)
             {
                 throw error;
-            }catch(Exception error)
+            }
+            catch (Exception error)
             {
                 throw error;
             }

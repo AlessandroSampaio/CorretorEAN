@@ -99,6 +99,7 @@ namespace CorretorEAN
             }
             if (result == MessageBoxResult.Yes)
             {
+                MessageBox.Show("Todos os produtos com referência não localizada serão movidos para a Seção 99!");
                 EnableAll();
                 if (Classificacao)
                 {
@@ -138,6 +139,7 @@ namespace CorretorEAN
 
         #region Workers
 
+        //BackGroundWorker para trabalhar as alterações no nivel de Produtos
         private void AtualizarProdutos()
         {
             using (BackgroundWorker worker = new BackgroundWorker())
@@ -155,11 +157,13 @@ namespace CorretorEAN
             MessageBox.Show("Concluido com Sucesso");
             EnableAll();
             pgBar_Produtos.Value = 0;
+            lbProgress.Content = "";
         }
 
         private void Worker_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
             pgBar_Produtos.Value = e.ProgressPercentage;
+            lbProgress.Content = "Movendo Produtos : " + e.ProgressPercentage.ToString() + "%";
         }
 
         private void Worker_DoWork(object sender, DoWorkEventArgs e)
@@ -168,6 +172,8 @@ namespace CorretorEAN
             var worker = sender as BackgroundWorker;
             try
             {
+                //Capturando Lista de produtos sem correspondencia na model
+               
                 for (int i = 0; i < Origem.Count; i++)
                 {
                     if (Origem[i].Ean.Equals(Destino[i].Ean))
@@ -191,7 +197,7 @@ namespace CorretorEAN
             }
         }
 
-
+        //BackGroundWorker para trabalhar as alterações no nivel de Seções
         private void Worker_RunWorkerCompleted_Secao(object sender, RunWorkerCompletedEventArgs e)
         {
             AtualizarProdutos();
@@ -200,6 +206,20 @@ namespace CorretorEAN
         private void Worker_ProgressChanged_Secao(object sender, ProgressChangedEventArgs e)
         {
             pgBar_Secao.Value = e.ProgressPercentage;
+            if(e.ProgressPercentage < 33)
+            {
+                lbProgress.Content = "CRIANDO SEÇÕES";
+            }else if(e.ProgressPercentage < 66)
+            {
+                lbProgress.Content = "CRIANDO GRUPOS";
+            }else if(e.ProgressPercentage < 99)
+            {
+                lbProgress.Content = "CRIANDO SUBGRUPOS";
+            }
+            else
+            {
+                lbProgress.Content = "MOVENDO PRODUTOS SEM REFERENCIAS";
+            }
         }
 
         private void Worker_DoWork_Secoes(object sender, DoWorkEventArgs e)
@@ -213,6 +233,9 @@ namespace CorretorEAN
                 ConexaoFirebird.CreateGrupoSysPDV();
                 worker.ReportProgress(66);
                 ConexaoFirebird.CreateSubGrupoSysPDV();
+                worker.ReportProgress(99);
+                var results = ConexaoFirebird.GetListProdutosSysPDV().Except(ConexaoFirebird.GetListProdutosModel(), new ProdutoEanComparer());
+                ConexaoFirebird.UpdateSecaoProdutosSysPDV(results.ToList(), "99");
                 worker.ReportProgress(100);
             }
             catch (Exception error) {
