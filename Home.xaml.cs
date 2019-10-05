@@ -57,6 +57,9 @@ namespace CorretorEAN
             return foundElement;
         }
 
+        /// <summary>
+        /// Ativa ou inativa todos os controles da windows
+        /// </summary>
         public void EnableAll()
         {
             ckbClassificacao.IsEnabled = !ckbClassificacao.IsEnabled;
@@ -68,6 +71,9 @@ namespace CorretorEAN
             btTransferir.IsEnabled = !btTransferir.IsEnabled;
         }
 
+        /// <summary>
+        /// Popula as ListViews com os dados de origem e destino utilizando Intercept()
+        /// </summary>
         private void CarregaLV()
         {
             Destino = ConexaoFirebird.GetListProdutosModel();
@@ -78,7 +84,11 @@ namespace CorretorEAN
         #endregion
 
         #region Events
-
+        /// <summary>
+        /// Evento para sincronizar as ListViews
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Lbx1_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
             ScrollViewer _listboxScrollViewer1 = GetDescendantByType(lvOrigem, typeof(ScrollViewer)) as ScrollViewer;
@@ -86,6 +96,11 @@ namespace CorretorEAN
             _listboxScrollViewer2.ScrollToVerticalOffset(_listboxScrollViewer1.VerticalOffset);
         }
 
+        /// <summary>
+        /// Inicia o processo de atualização de cadastro
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void BtTransferir_Click(object sender, RoutedEventArgs e)
         {
             MessageBoxResult result;
@@ -119,6 +134,12 @@ namespace CorretorEAN
             }
         }
 
+        /// <summary>
+        /// Utilizado para popular as variaveis globais.
+        /// Ativa e inativa o botão de transferencia caso uma checkbox esteja marcada
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void CkbFilters_Checked(object sender, RoutedEventArgs e)
         {
             Descricao = ckbDescricao.IsChecked.GetValueOrDefault(false);
@@ -139,7 +160,9 @@ namespace CorretorEAN
 
         #region Workers
 
-        //BackGroundWorker para trabalhar as alterações no nivel de Produtos
+        /// <summary>
+        /// Gera um BackGroundWorker para control o progresso na atualização dos produtos
+        /// </summary>
         private void AtualizarProdutos()
         {
             using (BackgroundWorker worker = new BackgroundWorker())
@@ -152,6 +175,11 @@ namespace CorretorEAN
             }
         }
 
+        /// <summary>
+        /// Ação realizada no fim do BackGroundWorker
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             MessageBox.Show("Concluido com Sucesso");
@@ -160,12 +188,22 @@ namespace CorretorEAN
             lbProgress.Content = "";
         }
 
+        /// <summary>
+        /// Controle de progresso da execução do BackGroundWorker
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Worker_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
             pgBar_Produtos.Value = e.ProgressPercentage;
             lbProgress.Content = "Movendo Produtos : " + e.ProgressPercentage.ToString() + "%";
         }
 
+        /// <summary>
+        /// Realiza a alteração dos itens listados na ListView
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Worker_DoWork(object sender, DoWorkEventArgs e)
         {
             DateTime currrentWork = DateTime.Now;
@@ -197,12 +235,21 @@ namespace CorretorEAN
             }
         }
 
-        //BackGroundWorker para trabalhar as alterações no nivel de Seções
+        /// <summary>
+        /// Inicia as alterações nos produtos no fim do BackGroundWorker das seções
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Worker_RunWorkerCompleted_Secao(object sender, RunWorkerCompletedEventArgs e)
         {
             AtualizarProdutos();
         }
 
+        /// <summary>
+        /// Controle de progresso da execução do BackGroundWorker das Seções
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Worker_ProgressChanged_Secao(object sender, ProgressChangedEventArgs e)
         {
             pgBar_Secao.Value = e.ProgressPercentage;
@@ -222,6 +269,12 @@ namespace CorretorEAN
             }
         }
 
+        /// <summary>
+        /// Realiza a remoção e a criação dos itens de classificação de um produto.
+        /// Seção/Grupo/SubGrupo
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Worker_DoWork_Secoes(object sender, DoWorkEventArgs e)
         {
             var worker = sender as BackgroundWorker;
