@@ -232,29 +232,19 @@ namespace CorretorEAN
             return true;
         }
 
-        public static int UpdateSecaoProdutosSysPDV(List<Produto> produtos, string seccod)
+        public static void UpdateSecaoProdutosSysPDV()
         {
-            int counter = 0;
-            if (seccod.Equals(""))
-            {
-                throw new ArgumentNullException("Campos obrigatórios não foram preenchidos!");
-            }
             try
             {
                 connectionSysPDV.Open();
-                FbCommand command = new FbCommand("update produto set seccod=@seccod, grpcod='000', sgrcod='000' where procod=@procod", connectionSysPDV);
-                command.Parameters.Add("seccod", FbDbType.VarChar).Value = "";
-                command.Parameters.Add("procod", FbDbType.VarChar).Value = "";
-                for (int i = 0; i < produtos.Count; i++)
-                {
-                    command.Parameters["seccod"].Value = seccod;
-                    command.Parameters["procod"].Value = produtos[i].Codigo;
-                    command.ExecuteScalar();
-                    counter++;
-                }
+                FbCommand command = new FbCommand("update produto set seccod='99', grpcod='000', sgrcod='000'", connectionSysPDV);
+                command.ExecuteNonQuery();
                 command.Dispose();
             }
             catch (FbException error)
+            {
+                throw error;
+            }catch(Exception error)
             {
                 throw error;
             }
@@ -262,7 +252,6 @@ namespace CorretorEAN
             {
                 connectionSysPDV.Close();
             }
-            return counter;
         }
 
         public static bool DeleteSecoesSysPDV()

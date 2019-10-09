@@ -287,12 +287,14 @@ namespace CorretorEAN
                 worker.ReportProgress(66);
                 ConexaoFirebird.CreateSubGrupoSysPDV();
                 worker.ReportProgress(99);
-                var results = ConexaoFirebird.GetListProdutosSysPDV().Except(ConexaoFirebird.GetListProdutosModel(), new ProdutoEanComparer());
-                ConexaoFirebird.UpdateSecaoProdutosSysPDV(results.ToList(), "99");
-                worker.ReportProgress(100);
+                ConexaoFirebird.UpdateSecaoProdutosSysPDV();                
             }
             catch (Exception error) {
                 MessageBox.Show(error.Message);
+            }
+            finally
+            {
+                worker.ReportProgress(100);
             }
         }
 
