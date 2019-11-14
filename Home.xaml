@@ -62,5 +62,7 @@
         <ProgressBar x:Name="pgBar_Produtos" HorizontalAlignment="Left" Margin="10,449,0,6" Width="772" Grid.ColumnSpan="3"/>
         <ProgressBar x:Name="pgBar_Secao" HorizontalAlignment="Left" Margin="10,416,0,39" Width="772" Grid.ColumnSpan="3"/>
         <Label x:Name="lbProgress" Grid.ColumnSpan="3" Content="" HorizontalAlignment="Left" Height="33" Margin="236,423,0,0" VerticalAlignment="Top" Width="320" Background="Transparent" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
+        <Button x:Name="btnInativarProdutos" Content="Inativar Prod" Grid.Column="2" HorizontalAlignment="Left" Margin="70,10,0,0" VerticalAlignment="Top" Width="130" Click="BtnInativarProdutos_Click"/>
+        <Button x:Name="btnGerarCustos" Content="Gerar Custos" Grid.Column="2" HorizontalAlignment="Left" Margin="232,10,0,0" VerticalAlignment="Top" Width="130" Click="BtnGerarCustos_Click"/>
     </Grid>
 </Window>

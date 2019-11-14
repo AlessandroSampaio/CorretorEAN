@@ -428,5 +428,31 @@ namespace CorretorEAN
             }
             return true;
         }
+
+        public static int InativarProdutos(DateTime dataIncial)
+        {
+            int count = 0;
+            try
+            {
+                connectionSysPDV.Open();
+                FbCommand commandInativar = new FbCommand(@"update produto p set seccod='99', grpcod='000', sgrcod='000', proforlin='S', prodatforlin=current_timestamp where not exists ("+
+                                                     "select 1 from estoque_movimentacao e where p.procod=e.procod and e.movdat >= @dataInicial ) and p.proctrest='N'", connectionSysPDV);
+                commandInativar.Parameters.Add("@dataInicial", FbDbType.Date).Value = dataIncial.Date;
+                count = commandInativar.ExecuteNonQuery();
+            }
+            catch (FbException error)
+            {
+                throw error;
+            }
+            catch (Exception error)
+            {
+                throw error;
+            }
+            finally
+            {
+                connectionSysPDV.Close();
+            }
+            return count;
+        }
     }
 }

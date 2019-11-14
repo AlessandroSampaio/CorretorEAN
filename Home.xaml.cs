@@ -29,6 +29,7 @@ namespace CorretorEAN
                 CarregaLV();
                 lvOrigem.ItemsSource = Origem;
                 lvDestino.ItemsSource = Destino;
+                
             }catch(Exception error)
             {
                 MessageBox.Show(error.Message);
@@ -132,6 +133,27 @@ namespace CorretorEAN
                     AtualizarProdutos();
                 }
             }
+        }
+
+        /// <summary>
+        /// Inativa produtos sem movimentacao a partir de determinado periodo
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void BtnInativarProdutos_Click(object sender, RoutedEventArgs e)
+        {
+            InativarProdutos inativarProdutos = new InativarProdutos();
+            inativarProdutos.ShowDialog();
+        }
+
+        /// <summary>
+        /// Gerar custos ficticios com base em uma margem
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void BtnGerarCustos_Click(object sender, RoutedEventArgs e)
+        {
+
         }
 
         /// <summary>
@@ -299,5 +321,7 @@ namespace CorretorEAN
         }
 
         #endregion
+
+       
     }
 }

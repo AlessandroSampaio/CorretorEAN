@@ -1,0 +1,16 @@
+﻿<Window x:Class="CorretorEAN.InativarProdutos"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:CorretorEAN"
+        mc:Ignorable="d"
+        Title="InativarProdutos" Height="202.313" Width="254.614" WindowStyle="ToolWindow" WindowStartupLocation="CenterScreen">
+    <Grid>
+        <DatePicker x:Name="dpDataInicial" HorizontalAlignment="Left" Margin="10,48,0,0" VerticalAlignment="Top" Height="32" Width="210"/>
+        <Label Content="Data limite para analise de vendas :" HorizontalAlignment="Left" Margin="10,17,0,0" VerticalAlignment="Top" Width="363"/>
+        <Button x:Name="btnCancelar" Content="Cancelar" Margin="20,91,148,0" VerticalAlignment="Top" Height="55" Click="BtnCancelar_Click"/>
+        <Button x:Name="btnInativar" Content="Inativar&#xD;&#xA;Produtos" HorizontalAlignment="Left" Margin="124,91,0,0" VerticalAlignment="Top" Width="79" Height="55" Click="BtnInativar_Click"/>
+
+    </Grid>
+</Window>
